@@ -4,8 +4,9 @@ import './MemoryGame.css';
 
 type ImageCard = {
   src: string;
-  id: number;
+  match: boolean;
   flipped: boolean;
+  id: string; // ID for each image card
 }
 type MemoryGameProps = {
   images: ImageCard[];
@@ -24,14 +25,37 @@ const MemoryGame = ({ images }: MemoryGameProps) => {
   useEffect(() => {
     const duplicateImages = [...images, ...images].map((image, index) => ({
       ...image,
-      id: Math.random(), // Assign a unique ID based on the index
+      id: image.src + index, // Assign a unique ID based on the index
     }));
     const shuffledImages = shuffle(duplicateImages);
     setPlaceImages(shuffledImages);
   }, []);
 
-  const handleClick = (id: number) => {
-    console.log(id);
+  const checkMatch = (first: ImageCard, second: ImageCard) => {
+    // Check if the two flipped images match
+    if (first.src === second.src) {
+      // If they match, keep them flipped and mark as matched
+      setPlaceImages((prevImages) =>
+        prevImages.map((image) =>
+          image.id === first.id || image.id === second.id
+            ? { ...image, match: true } // Mark as matched
+            : image)
+      );
+    } else {
+      // If they don't match, flip them back after a short delay
+      console.log("Images do not match, flipping back after delay");
+      setTimeout(() => {
+        setPlaceImages((prevImages) =>
+          prevImages.map((image) =>
+            image.id === first.id || image.id === second.id
+              ? { ...image, flipped: false }
+              : image
+          )
+        );
+      }, 1000);
+    }
+  };
+  const handleClick = (id: string) => {
     const flipped = placeImages.find((image) => image.id === id);
     if (!flipped || flipped.flipped) return; // Ignore if already flipped
 
@@ -40,30 +64,20 @@ const MemoryGame = ({ images }: MemoryGameProps) => {
       image.id === id ? { ...image, flipped: true } : image
     );
 
-    const matchedImages = updatedImages.filter((image) => image.flipped);
-    if (matchedImages.length === 2) {
-      // Check if the two flipped images match
-      const [first, second] = matchedImages;
-      if (first.src === second.src) {
-        // If they match, keep them flipped and mark as matched
-        matchedImages.forEach((image) => {
-          image.flipped = true; // Keep them flipped
-        });
-      } else {
-        // If they don't match, flip them back after a short delay
-        setTimeout(() => {
-          setPlaceImages((prevImages) =>
-            prevImages.map((image) =>
-              image.id === first.id || image.id === second.id
-                ? { ...image, flipped: false }
-                : image
-            )
-          );
-        }, 1000);
-      }
-    }
     setPlaceImages(updatedImages);
-  }
+
+    const justFlipped = updatedImages.filter(img => img.flipped && !img.match);
+    if (justFlipped.length === 2) {
+      // Check if the two flipped images match
+      const [first, second] = justFlipped;
+      
+
+      setTimeout(() => {
+        checkMatch(first, second);
+      }, 500); // Delay to allow user to see the flipped images
+    }
+  };
+
   return (
     <div>
       <h1>Memory Game</h1>
