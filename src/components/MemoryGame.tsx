@@ -4,9 +4,9 @@ import './MemoryGame.css';
 
 type ImageCard = {
   src: string;
-  match: boolean;
-  flipped: boolean;
-  id: string; // ID for each image card
+  match: Boolean;
+  flipped: Boolean;
+  id?: string; // ID for each image card
 }
 type MemoryGameProps = {
   images: ImageCard[];
@@ -55,9 +55,10 @@ const MemoryGame = ({ images }: MemoryGameProps) => {
       }, 1000);
     }
   };
+
   const handleClick = (id: string) => {
-    const flipped = placeImages.find((image) => image.id === id);
-    if (!flipped || flipped.flipped) return; // Ignore if already flipped
+    const card = placeImages.find((image) => image.id === id);
+    if (card?.flipped) return; // Ignore if already flipped
 
     // Update the flipped state of the clicked image
     const updatedImages = placeImages.map((image) =>
