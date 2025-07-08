@@ -1,6 +1,7 @@
 .gallery {
   display: grid;
-  grid-template-columns: repeat(6, 120px);
+  grid-template-columns: repeat(6, 150px);
+  grid-template-rows: repeat(3, 150px); /* for 3 rows */
   gap: 10px;
   justify-content: center;
 }
